@@ -1,0 +1,2 @@
+# AOV_variance_analysis.R
+Performs the AOV average of Variance analysis on categorical variables and their numerical means.  The analysis works off the null hypothesis that all mean values are about equal, so the analysis will support/disprove that hypothesis, indicating that all variable means are not equal.  In addition, a Tukey post hoc test can be performed to determined if any of the categorical variable means are statistically similar or different
