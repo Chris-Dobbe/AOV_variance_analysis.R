@@ -1,0 +1,69 @@
+############################### AOV Variance Analysis #########################################
+#Determines if means of categorical variables are statistically significaly different
+
+# Project Name: 
+# Data source: 
+
+############################################################################################
+
+# begin by setting the working directory for the files
+setwd("C:/Users/*******/Documents/R")
+
+#Load the packages and libraries, or d/l any using install.packages("???")
+library(dplyr)
+library(magrittr)
+library(tidyr)
+library(readr)
+library(stringr)
+library(ggplot2)
+library(gridExtra)
+library(DescTools)
+library(RDCOMClient)  ## for importing specific cells of Excel files
+library(gdata)        ## for importing Excel files
+library(fBasics)
+
+# Begin by loading in the dataset using the appropriate method
+
+#data1 <- file.choose() # Allows for manual selection from folder location, paired with below
+  #data <- read_csv(data1)  # 
+#data1 <- read_csv("file_name.csv") #loads in the CSV to a tibble, easier to work with
+#data1 <- read_csv("file_name.csv")
+#data1 <- read.csv("file_name.tsv", sep = "\t", header = TRUE)
+#data1 <- read.xls("file_name.xlsx")
+#data1 <- XLGetRange(sheet = "sheet1", range = "A1:B21", header = TRUE) #only used when Excel workbook is open
+
+data1 <- morley #this is the sample dataset used when creating this script
+
+#simple data evaluation functions to validate data set
+View(data1)
+str(data1)
+summary(data)
+
+# AOV analysis of Variance functions, testing a hypothesis with a categorical explanatory variable
+# and a quantitative response variable, we find out if there is a stat. significant difference between
+# the different categorical variables by comparing their mean values
+# null hypothesis is all means are equal, so a non-zero, small p value will disprove the hypothesis
+
+data$Expt <- factor(data1$Expt)             # need your cat. variable to be a factor, so convert it here
+
+boxplot(Speed ~ Expt, data=data1)           # shows a boxplots for the key metric by one dimension
+means <- round(tapply(data1$Speed, data1$Expt, fun = mean), digits = 2)        # calculates the means of cat. variables
+means                                       # shows the means for each cat. variable
+aov_val <- aov(Speed ~ Expt, data=data1)    # creates boxplots of each cat. variable
+summary(aov_val)                            # provides degrees of freedom, mean squares, and p value, a p value
+
+# To disprove the null hypothesis, we want large F-value &  very tiny p-value (<0.05)
+
+qqnorm(residuals(aov_val))                  # normal plot of the residuals
+qqline(residuals(aov_val))                  # plots best fit line along the residuals
+plot(fitted(aov_val), residuals(aov_val))   # plots spread of residuals by cat. variable
+abline(h=0)                                 # includes the median line to show how each cat. variable residuals are spread to median
+
+# by now you can accept/reject hypothesis that all means are equal
+
+# to determine if there are sign. differences in means between the individual cat. variables, use the Tukey post hoc test
+tuk <- TukeyHSD(aov_val)
+tuk
+# the result list will show the diff, and adjusted P value between each of means of the cat. variables
+# This allows us to determine which cat. variables are similar, and which are different
+
